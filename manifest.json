@@ -3,8 +3,8 @@
   "name": "Spotify Discovery Helper",
   "version": "1.0",
   "description": "Skips known songs on Spotify web player to help discover new music",
-  "permissions": ["storage", "tabs"],
-  "host_permissions": ["https://open.spotify.com/*"],
+  "permissions": ["storage", "tabs", "alarms", "scripting", "webNavigation"],
+  "host_permissions": ["https://open.spotify.com/*", "https://api.spotify.com/*"],
   "background": {
     "service_worker": "background.js"
   },
