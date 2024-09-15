@@ -1,5 +1,6 @@
 let isEnabled = false;
 let knownSongs = new Set();
+let lastCheckedSong = null;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({ isEnabled: false, knownSongs: [] });
@@ -7,22 +8,37 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Received message:", message);
   if (message.type === 'TOGGLE') {
     isEnabled = message.value;
     chrome.storage.local.set({ isEnabled });
     console.log("Extension toggled:", isEnabled);
   } else if (message.type === 'CHECK_SONG') {
-    console.log("Checking song:", message.songId, "Known songs:", knownSongs.size);
-
     let isNewSong = !knownSongs.has(message.songId);
     if (isNewSong) {
       console.log("New song added:", message.songId);
       knownSongs.add(message.songId);
       chrome.storage.local.set({ knownSongs: Array.from(knownSongs) });
-    } 
+    }
 
-    sendResponse({ shouldSkip: isEnabled && (!isNewSong || message.inPlaylist) });
+    let shouldSkip = isEnabled && (message.inPlaylist || (!isNewSong && message.songId !== lastCheckedSong));
+    
+    if (shouldSkip) {
+      console.log(
+        "Skipping song:",
+        message.songId,
+        "\nIs new song:",
+        isNewSong,
+        "\nKnown songs:",
+        knownSongs.size,
+        "\nIs in playlist:",
+        message.inPlaylist,
+        "\nLast checked song:",
+        lastCheckedSong,
+      );
+    }
+
+    sendResponse({ shouldSkip: shouldSkip });
+    lastCheckedSong = message.songId;
   }
   return true;
 });

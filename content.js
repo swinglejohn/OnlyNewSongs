@@ -1,13 +1,12 @@
 (function () {
   console.log('Content script injected');
 
-  let lastCheckedSong = null;
   let intervalId;
   let lastUrl = location.href;
 
   function getCurrentSongId() {
     const nowPlayingWidget = document.querySelector('[data-testid="now-playing-widget"]');
-    return nowPlayingWidget ? nowPlayingWidget.getAttribute('aria-label') : null;
+    return nowPlayingWidget ? nowPlayingWidget.getAttribute('aria-label').replace('Now playing: ', '') : null;
   }
 
   function isInPlaylist() {
@@ -42,10 +41,8 @@
       const inPlaylist = isInPlaylist();
       const currentSongId = getCurrentSongId();
 
-      console.log('In content interval with song: ' + currentSongId + ' in playlist: ' + inPlaylist, "lastCheckedSong:", lastCheckedSong);
-      // check lastCheckedSong isn't null because we don't want to always skip the first song
-      if (currentSongId && lastCheckedSong && currentSongId !== lastCheckedSong) {
-        lastCheckedSong = currentSongId;
+      console.log(`In content interval with song: ${currentSongId}, in playlist: ${inPlaylist}`);
+      if (currentSongId) {
         chrome.runtime.sendMessage({
           type: 'CHECK_SONG',
           songId: currentSongId,
@@ -58,7 +55,6 @@
           }
         });
       }
-      lastCheckedSong = currentSongId;
     }, 1000);
   }
 
