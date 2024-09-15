@@ -13,6 +13,8 @@
     .container {
       display: flex;
       justify-content: center;
+      flex-direction: column;
+      align-items: center;
     }
     button {
       display: flex;
@@ -37,6 +39,17 @@
       height: 80px;
       object-fit: cover;
     }
+    .description {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: black;
+      color: lightgray;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.4;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -45,6 +58,12 @@
       <img src="images/icon128.png" alt="Extension Icon">
       <span id="buttonText">Enable Discovery Mode</span>
     </button>
+    <div class="description">
+      This extension helps you discover new music on Spotify by automatically skipping songs you've already heard or that are in your playlists.
+      <br>
+      <br>
+      Toggle Discovery Mode to start exploring fresh tunes!
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>

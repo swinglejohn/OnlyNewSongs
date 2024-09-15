@@ -20,7 +20,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.storage.local.set({ knownSongs: Array.from(knownSongs) });
     }
 
-    let shouldSkip = isEnabled && (message.inPlaylist || (!isNewSong && message.songId !== lastCheckedSong));
+    // We want to only skip a song if the extension is enabled.
+    // Since we check the song every second, we don't skip if it's the same song we just added to the list.
+    // This also means if someone just liked a song (added it to a playlist), we don't skip it.
+    let shouldSkip = isEnabled && message.songId !== lastCheckedSong && (message.inPlaylist || !isNewSong);
     
     if (shouldSkip) {
       console.log(
