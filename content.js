@@ -1,7 +1,9 @@
-(function() {
+(function () {
+  console.log('Content script injected');
+
   let lastCheckedSong = null;
   let intervalId;
-  let isMonitoring = false;
+  let lastUrl = location.href;
 
   function getCurrentSongId() {
     const nowPlayingWidget = document.querySelector('[data-testid="now-playing-widget"]');
@@ -9,8 +11,21 @@
   }
 
   function isInPlaylist() {
-    const addButton = document.querySelector('[data-testid="add-button"]');
-    return addButton ? addButton.getAttribute('aria-label').includes('Remove from') : false;
+    const nowPlayingWidget = document.querySelector('[data-testid="now-playing-widget"]');
+    if (!nowPlayingWidget) {
+      console.error('Could not find nowPlayingWidget:', nowPlayingWidget);
+      return false;
+    }
+
+    // get the button inside the nowPlayingWidget that has an aria-checked attribute
+    const addButton = nowPlayingWidget.querySelector('[aria-checked]');
+    if (!addButton) {
+      console.error('Could not find addButton:', addButton);
+      return false;
+    }
+
+    isChecked = addButton.getAttribute('aria-checked') === 'true'; // it's a string, sadly
+    return isChecked;
   }
 
   function skipSong() {
@@ -19,57 +34,44 @@
   }
 
   function startMonitoring() {
-    if (isMonitoring) return;
-    
     if (intervalId) {
       clearInterval(intervalId);
     }
-    
-    isMonitoring = true;
+    console.log('Monitoring started');
     intervalId = setInterval(() => {
       const inPlaylist = isInPlaylist();
-      if (inPlaylist) {
-        skipSong();
-        return;
-      }
-      
       const currentSongId = getCurrentSongId();
+
+      console.log('In content interval with song: ' + currentSongId + ' in playlist: ' + inPlaylist, "lastCheckedSong:", lastCheckedSong);
+      // check lastCheckedSong isn't null because we don't want to always skip the first song
       if (currentSongId && lastCheckedSong && currentSongId !== lastCheckedSong) {
         lastCheckedSong = currentSongId;
         chrome.runtime.sendMessage({
           type: 'CHECK_SONG',
           songId: currentSongId,
-          inPlaylist: inPlaylist
+          inPlaylist: inPlaylist,
         }, (response) => {
           if (chrome.runtime.lastError) {
             console.log('Error checking song:', chrome.runtime.lastError);
-            return;
-          }
-          if (response && response.shouldSkip) {
+          } else if (response && response.shouldSkip) {
             skipSong();
           }
         });
       }
+      lastCheckedSong = currentSongId;
     }, 1000);
   }
 
-  function cleanup() {
-    if (intervalId) {
-      clearInterval(intervalId);
+  function checkUrlChange() {
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+      console.log('URL changed to', lastUrl);
+      startMonitoring();
     }
-    isMonitoring = false;
   }
 
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'cleanup') {
-      cleanup();
-      sendResponse({status: 'cleaned up'});
-    } else if (message.action === 'start') {
-      startMonitoring();
-      sendResponse({status: 'started'});
-    }
-    return true; // Indicates we will send a response asynchronously
-  });
+  // Check for URL changes every second
+  setInterval(checkUrlChange, 1000);
 
   // Initial start
   startMonitoring();

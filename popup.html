@@ -2,12 +2,37 @@
 <html>
 <head>
   <style>
-    body { width: 200px; padding: 10px; }
-    button { width: 100%; padding: 5px; }
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+      border-radius: 10px;
+    }
+    .container { display: flex; align-items: center; }
+    img { width: 80px; height: 80px; margin-right: 10px; object-fit: cover; }
+    button {
+      flex-grow: 1;
+      padding: 10px;
+      height: 80px;
+      background-color: #1ed760;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover { background-color: #1db954; }
   </style>
 </head>
 <body>
-  <button id="toggleButton">Enable Discovery Mode</button>
+  <div class="container">
+    <img src="images/icon128.png" alt="Extension Icon">
+    <button id="johnsToggleButton">Enable Discovery Mode</button>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
