@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Spotify Discovery Helper",
+  "name": "Spotify Discovery Mode",
   "version": "1.0",
   "description": "Skips known songs on Spotify web player to help discover new music",
   "permissions": ["storage"],
