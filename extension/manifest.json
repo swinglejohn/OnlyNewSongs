@@ -4,7 +4,6 @@
   "version": "1.0",
   "description": "Skips known songs on Spotify web player to help discover new music",
   "permissions": ["storage"],
-  "host_permissions": ["https://open.spotify.com/*"],
   "background": {
     "service_worker": "background.js"
   },
